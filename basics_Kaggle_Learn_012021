@@ -1,0 +1,38 @@
+######linear model setup
+1) input_shape
+
+input_shape = [len(concrete.columns)-1]
+
+2)build model
+
+model = keras.Sequential([
+        keras.layers.Dense(units=512, activation='relu', input_shape=input_shape),
+        keras.layers.Dense(units=512, activation='relu'),
+        keras.layers.Dense(units=512, activation='relu'),
+        keras.layers.Dense(units=1)  ])
+Note:
+layers.Dense(units=8),
+layers.Activation('relu')
+This is completely equivalent to the ordinary way: layers.Dense(units=8, activation='relu').
+
+#############*preprocess the table data#################
+
+1) normalization of numerical data
+2) one-hot for the categorical data
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import make_column_transformer, make_column_selector
+
+X = fuel.copy()
+# Remove target
+y = X.pop('FE')
+
+preprocessor = make_column_transformer(
+    (StandardScaler(),
+     make_column_selector(dtype_include=np.number)),
+    (OneHotEncoder(sparse=False),
+     make_column_selector(dtype_include=object)),
+)
+X = preprocessor.fit_transform(X)
