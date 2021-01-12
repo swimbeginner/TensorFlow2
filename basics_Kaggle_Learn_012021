@@ -14,6 +14,58 @@ Note:
 layers.Dense(units=8),
 layers.Activation('relu')
 This is completely equivalent to the ordinary way: layers.Dense(units=8, activation='relu').
+3) build the model
+model.compile(
+    optimizer='adam',
+    loss='MAE' )
+    
+    model.compile(
+    optimizer='adam',
+    loss='bianry_crossentropy',
+    metrics=['binary_accuracy'])
+    
+4) run the model
+history = model.fit(X,y, batch_size=128, epochs=200)
+-----------or with validation
+history = model.fit(
+    X_train, y_train,
+    validation_data=(X_valid, y_valid),
+    batch_size=512,
+    epochs=50,
+    verbose=0, 
+)
+5) view the results
+import pandas as pd
+
+history_df = pd.DataFrame(history.history)
+# Start the plot at epoch 5. You can change this to get a different view.
+history_df.loc[5:, ['loss']].plot();
+
+6) early stopping (bandit policy with callback)
+a. self defined 
+b.Early
+from tensorflow.keras.callbacks import EarlyStopping
+
+early_stopping = EarlyStopping(
+    min_delta=0.001, # minimium amount of change to count as an improvement
+    patience=20, # how many epochs to wait before stopping
+    restore_best_weights=True,
+)
+7) dropout 
+model = keras.Sequential([
+    layers.Dense(128,  activation='relu',input_shape=input_shape),
+    layers.Dropout(0.3),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(1)
+])
+
+8) normalization
+Add Batchnormalization before each Dense layer
+#keras.Input(input_shape) #for first layer 
+keras.Batchnormalization(),
+keras.Dense
+
 
 #############*preprocess the table data#################
 
@@ -36,3 +88,26 @@ preprocessor = make_column_transformer(
      make_column_selector(dtype_include=object)),
 )
 X = preprocessor.fit_transform(X)
+
+########################## train test split
+def group_split(X, y, group, train_size=0.75):
+    splitter = GroupShuffleSplit(train_size=train_size)
+    train, test = next(splitter.split(X, y, groups=group))
+    return (X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test])
+
+X_train, X_valid, y_train, y_valid = group_split(X, y, artists)
+X_train = preprocessor.fit_transform(X_train)
+X_valid = preprocessor.transform(X_valid)
+y_train = y_train / 100
+y_valid = y_valid / 100
+
+##########new way to do the train-val split
+df_train = df.sample(frac=0.7, random_state=0)
+df_valid = df.drop(df_train.index)
+
+*************binary classification cases##########
+
+########model description#########
+1) tf.keras.utils.plot_model(deep, show_shapes=True)
+
+2) model.summary()
