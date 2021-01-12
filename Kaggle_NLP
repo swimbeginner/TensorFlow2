@@ -27,3 +27,5 @@ matches = matcher(text_doc)
 print(matches)
 match_id, start, end = matches[0]
 print(nlp.vocab.strings[match_id], text_doc[start:end])
+
+##############Bag of words
