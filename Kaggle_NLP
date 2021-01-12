@@ -28,4 +28,23 @@ print(matches)
 match_id, start, end = matches[0]
 print(nlp.vocab.strings[match_id], text_doc[start:end])
 
-##############Bag of words
+##############Bag of words, build pipe
+
+# Create an empty model
+nlp = spacy.blank("en")
+
+# Create the TextCategorizer with exclusive classes and "bow" architecture
+textcat = nlp.create_pipe(
+              "textcat",
+              config={
+                "exclusive_classes": True,
+                "architecture": "bow"})
+
+# Add the TextCategorizer to the empty model
+nlp.add_pipe(textcat)
+train_texts = spam['text'].values
+train_labels = [{'cats': {'ham': label == 'ham',
+                          'spam': label == 'spam'}} 
+                for label in spam['label']]
+train_data = list(zip(train_texts, train_labels))
+train_data[:3]
